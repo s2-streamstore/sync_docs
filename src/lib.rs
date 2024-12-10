@@ -18,10 +18,10 @@ fn find_type_docs(parsed_file: File, target_name: &str) -> Option<CollectedDocs>
     for item in parsed_file.items {
         if let Some(docs) = match item {
             Item::Mod(m) => find_mod_docs(m, target_name),
-            Item::Struct(s) => find_struct_docs(s, target_name.to_string()),
-            Item::Enum(e) => find_enum_docs(e, target_name.to_string()),
+            Item::Struct(s) => find_struct_docs(&s, target_name),
+            Item::Enum(e) => find_enum_docs(e, target_name),
             Item::Impl(i) => find_impl_fn_docs(i, target_name),
-            Item::Fn(f) => find_fn_docs(f, target_name.to_string()),
+            Item::Fn(f) => find_fn_docs(f, target_name),
             _ => None,
         } {
             return Some(docs);
@@ -31,7 +31,7 @@ fn find_type_docs(parsed_file: File, target_name: &str) -> Option<CollectedDocs>
     None
 }
 
-fn find_enum_docs(ast_enum: ItemEnum, target_enum_name: String) -> Option<CollectedDocs> {
+fn find_enum_docs(ast_enum: ItemEnum, target_enum_name: &str) -> Option<CollectedDocs> {
     if ast_enum.ident == target_enum_name {
         let enum_docs = extract_doc_strings(&ast_enum.attrs);
         let mut variant_docs = HashMap::new();
@@ -55,7 +55,7 @@ fn find_enum_docs(ast_enum: ItemEnum, target_enum_name: String) -> Option<Collec
     None
 }
 
-fn find_struct_docs(ast_struct: ItemStruct, target_struct_name: String) -> Option<CollectedDocs> {
+fn find_struct_docs(ast_struct: &ItemStruct, target_struct_name: &str) -> Option<CollectedDocs> {
     if ast_struct.ident == target_struct_name {
         let struct_docs = extract_doc_strings(&ast_struct.attrs);
 
@@ -76,7 +76,7 @@ fn find_struct_docs(ast_struct: ItemStruct, target_struct_name: String) -> Optio
     None
 }
 
-fn find_fn_docs(ast_fn: syn::ItemFn, target_fn_name: String) -> Option<CollectedDocs> {
+fn find_fn_docs(ast_fn: syn::ItemFn, target_fn_name: &str) -> Option<CollectedDocs> {
     if ast_fn.sig.ident == target_fn_name {
         let fn_docs = extract_doc_strings(&ast_fn.attrs);
         return Some((fn_docs, HashMap::new()));
@@ -211,7 +211,7 @@ impl Parse for RenameArgs {
             }
         }
 
-        Ok(RenameArgs { mapping })
+        Ok(Self { mapping })
     }
 }
 
