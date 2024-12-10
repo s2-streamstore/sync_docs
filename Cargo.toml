@@ -1,8 +1,12 @@
 [package]
 name = "sync_docs"
+description = "This proc macro allows injecting documentation from prost generated Rust file into custom defined sdk types (s2-sdk-rust in this case)"
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
+keywords = ["tonic", "proc_macro", "prost", "docs"]
+repository = "https://github.com/s2-streamstore/sync_docs"
+homepage = "https://github.com/s2-streamstore/sync_docs"
 
 [lib]
 proc-macro = true
