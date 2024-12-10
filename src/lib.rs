@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, path::Path};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 use proc_macro::TokenStream;
 use quote::quote;
@@ -221,29 +221,16 @@ pub fn sync_docs(args: TokenStream, input: TokenStream) -> TokenStream {
     let args = parse_macro_input!(args as RenameArgs);
     let mut input_item = parse_macro_input!(input as Item);
 
-    let source_path = {
-        let out_dir = match std::env::var("OUT_DIR") {
-            Ok(dir) => dir,
-            Err(_) => {
-                return syn::Error::new(proc_macro2::Span::call_site(), "OUT_DIR is required")
-                    .to_compile_error()
-                    .into();
-            }
-        };
-
-        let prost_file = match std::env::var("COMPILED_PROST_FILE") {
-            Ok(file) => file,
-            Err(_) => {
-                return syn::Error::new(
-                    proc_macro2::Span::call_site(),
-                    "COMPILED_PROST_FILE is required",
-                )
-                .to_compile_error()
-                .into();
-            }
-        };
-
-        Path::new(&out_dir).join(prost_file)
+    let source_path = match std::env::var("COMPILED_PROST_FILE") {
+        Ok(file) => PathBuf::from(file),
+        Err(_) => {
+            return syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "COMPILED_PROST_FILE is required",
+            )
+            .to_compile_error()
+            .into();
+        }
     };
 
     let raw_file_content = match fs::read_to_string(source_path) {
